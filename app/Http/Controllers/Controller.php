@@ -32,7 +32,7 @@ class Controller extends BaseController
 	 * @return void
 	 */
 	public function __construct()
-	{
+	{		
 		$this->rajaOngkirApiKey = config('rajaongkir.api_key');
 		$this->rajaOngkirBaseUrl = config('rajaongkir.base_url');
 		$this->rajaOngkirOrigin = config('rajaongkir.origin');
@@ -55,11 +55,11 @@ class Controller extends BaseController
 			'headers' => $headers,
 		];
 
-		$url =  $this->rajaOngkirBaseUrl . $resource;
+		$url =  $this->rajaOngkirBaseUrl .'/'. $resource;
 		if ($params && $method == 'POST') {
 			$requestParams['form_params'] = $params;
 		} else if ($params && $method == 'GET') {
-			$query = is_array($params) ? '?'.http_build_query($params) : '';
+			$query = is_array($params) ? '?' . http_build_query($params) : '';
 			$url = $this->rajaOngkirBaseUrl . $resource . $query;
 		}
 		
@@ -74,13 +74,32 @@ class Controller extends BaseController
 	 * @return array
 	 */
 	protected function getProvinces()
-	{
-		$provinceFile = 'provinces.txt';
-		$provinceFilePath = $this->uploadsFolder. 'files/' . $provinceFile;
+	// {
+	// 	$provinceFile = 'provinces.txt';
+	// 	$provinceFilePath = $this->uploadsFolder. 'files/' . $provinceFile;
 
-		$isExistProvinceJson = \Storage::disk('local')->exists($provinceFilePath);
+	// 	$isExistProvinceJson = \Storage::disk('local')->exists($provinceFilePath);
 
-		if (!$isExistProvinceJson) {
+	// 	if (!$isExistProvinceJson) {
+	// 		$response = $this->rajaOngkirRequest('province');
+	// 		\Storage::disk('local')->put($provinceFilePath, serialize($response['rajaongkir']['results']));
+	// 	}
+
+	// 	$province = unserialize(\Storage::get($provinceFilePath));
+
+	// 	$provinces = [];
+	// 	if (!empty($province)) {
+	// 		foreach ($province as $province) {
+	// 			$provinces[$province['province_id']] = strtoupper($province['province']);
+	// 		}
+	// 	}
+
+	// 	return $provinces;
+    // }
+		{	$provinceFile = 'provinces.txt';
+		$provinceFilePath = $this->uploadsFolder . 'files/' . $provinceFile;
+
+		if (!\Storage::disk('local')->exists($provinceFilePath)) {
 			$response = $this->rajaOngkirRequest('province');
 			\Storage::disk('local')->put($provinceFilePath, serialize($response['rajaongkir']['results']));
 		}
@@ -88,14 +107,12 @@ class Controller extends BaseController
 		$province = unserialize(\Storage::get($provinceFilePath));
 
 		$provinces = [];
-		if (!empty($province)) {
-			foreach ($province as $province) {
-				$provinces[$province['province_id']] = strtoupper($province['province']);
-			}
+		foreach ($province as $item) {
+			$provinces[$item['province_id']] = strtoupper($item['province']);
 		}
 
 		return $provinces;
-    }
+	}
     
     /**
 	 * Get cities by province ID
@@ -105,27 +122,45 @@ class Controller extends BaseController
 	 * @return array
 	 */
 	protected function getCities($provinceId)
-	{
-		$cityFile = 'cities_at_'. $provinceId .'.txt';
-		$cityFilePath = $this->uploadsFolder. 'files/' .$cityFile;
+	// {
+	// 	$cityFile = 'cities_at_'. $provinceId .'.txt';
+	// 	$cityFilePath = $this->uploadsFolder. 'files/' .$cityFile;
 
-		$isExistCitiesJson = \Storage::disk('local')->exists($cityFilePath);
+	// 	$isExistCitiesJson = \Storage::disk('local')->exists($cityFilePath);
 
-		if (!$isExistCitiesJson) {
-			$response = $this->rajaOngkirRequest('city', ['province' => $provinceId]);
-			\Storage::disk('local')->put($cityFilePath, serialize($response['rajaongkir']['results']));
-		}
+	// 	if (!$isExistCitiesJson) {
+	// 		$response = $this->rajaOngkirRequest('city', ['province' => $provinceId]);
+	// 		\Storage::disk('local')->put($cityFilePath, serialize($response['rajaongkir']['results']));
+	// 	}
 
-		$cityList = unserialize(\Storage::get($cityFilePath));
+	// 	$cityList = unserialize(\Storage::get($cityFilePath));
 		
-		$cities = [];
-		if (!empty($cityList)) {
-			foreach ($cityList as $city) {
-				$cities[$city['city_id']] = strtoupper($city['type'].' '.$city['city_name']);
-			}
-		}
+	// 	$cities = [];
+	// 	if (!empty($cityList)) {
+	// 		foreach ($cityList as $city) {
+	// 			$cities[$city['city_id']] = strtoupper($city['type'].' '.$city['city_name']);
+	// 		}
+	// 	}
 
-		return $cities;
+	// 	return $cities;
+	// }
+	{
+	$cityFile = 'cities_at_' . $provinceId . '.txt';
+    $cityFilePath = $this->uploadsFolder . 'files/' . $cityFile;
+
+    if (!\Storage::disk('local')->exists($cityFilePath)) {
+        $response = $this->rajaOngkirRequest('city', ['province' => $provinceId]);
+        \Storage::disk('local')->put($cityFilePath, serialize($response['rajaongkir']['results']));
+    }
+
+    $cityList = unserialize(\Storage::get($cityFilePath));
+
+    $cities = [];
+    foreach ($cityList as $city) {
+        $cities[$city['city_id']] = strtoupper($city['type'] . ' ' . $city['city_name']);
+    }
+
+    return $cities;
 	}
 
 	protected function initPaymentGateway()

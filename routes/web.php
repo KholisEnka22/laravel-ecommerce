@@ -15,6 +15,22 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+
+// use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+
+// Route::get('/test-rajaongkir', function () {
+//     $origin = 'http://localhost:8000'; // Ganti dengan URL origin yang ingin Anda uji, misalnya 'http://localhost:8000'
+
+//     $response = Http::withHeaders([
+//         'Origin' => $origin,
+//     ])->get('https://api.rajaongkir.com/starter/province');
+
+//     return $response->json();
+// });
+
+
+
 Route::post('payments/notification', [\App\Http\Controllers\PaymentController::class, 'notification'])->name('payment.notification');
 Route::get('payments/completed', [\App\Http\Controllers\PaymentController::class, 'completed'])->name('payment.completed');
 Route::get('payments/failed', [\App\Http\Controllers\PaymentController::class, 'failed'])->name('payment.failed');
@@ -74,4 +90,3 @@ Route::group(['middleware' => 'auth'], function() {
 });
 
 Auth::routes();
-

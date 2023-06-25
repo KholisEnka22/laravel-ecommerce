@@ -40,6 +40,16 @@ Route::middleware('client')->group(function () {
     Route::get('product/{slug}', [\App\Http\Controllers\API\ProductController::class, 'show']);
 });
 
+Route::get('/test-province', function () {
+    $client = new \GuzzleHttp\Client();
 
+    $response = $client->request('GET', 'https://api.rajaongkir.com/starter/province', [
+        'headers' => [
+            'key' => '5727bbd4c549aabdfc9add08504035a6',
+        ],
+    ]);
 
+    $data = json_decode($response->getBody(), true);
 
+    return $data;
+});
