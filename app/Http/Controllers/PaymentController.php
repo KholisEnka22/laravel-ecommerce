@@ -5,12 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Payment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
 {
     public function notification(Request $request){
 		$payload = $request->getContent();
 		$notification = json_decode($payload);
+
+		Log::info('midtrans.notif', [
+			'request' => $notification
+		]);
 
 		$validSignatureKey = hash("sha512", $notification->order_id . $notification->status_code . $notification->gross_amount . 'SB-Mid-server-qfmZPQ6-2OoutunOib_XJpl3');
 		if ($notification->signature_key != $validSignatureKey) {
