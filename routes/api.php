@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -33,23 +34,10 @@ Route::middleware('auth:api', 'sessions')->group(function () {
     Route::post('cart/set-shipping', [\App\Http\Controllers\API\CartController::class, 'setShipping']);
 
     Route::post('order/checkout', [\App\Http\Controllers\API\OrderController::class, 'checkout']);
+
 });
 
 Route::middleware('client')->group(function () {
     Route::get('product', [\App\Http\Controllers\API\ProductController::class, 'index']);
     Route::get('product/{slug}', [\App\Http\Controllers\API\ProductController::class, 'show']);
-});
-
-Route::get('/test-province', function () {
-    $client = new \GuzzleHttp\Client();
-
-    $response = $client->request('GET', 'https://api.rajaongkir.com/starter/province', [
-        'headers' => [
-            'key' => '5727bbd4c549aabdfc9add08504035a6',
-        ],
-    ]);
-
-    $data = json_decode($response->getBody(), true);
-
-    return $data;
 });

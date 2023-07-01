@@ -36,7 +36,7 @@ Route::get('payments/completed', [\App\Http\Controllers\PaymentController::class
 Route::get('payments/failed', [\App\Http\Controllers\PaymentController::class, 'failed'])->name('payment.failed');
 Route::get('payments/unfinish', [\App\Http\Controllers\PaymentController::class, 'unfinish'])->name('payment.unfinish');
 
-Route::get('text', function() {
+Route::get('/text', function() {
     return view('frontend.payments.success');
 });
 
