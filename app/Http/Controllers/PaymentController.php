@@ -17,8 +17,7 @@ class PaymentController extends Controller
 			'request' => $notification
 		]);
 
-		$validSignatureKey = hash("sha512", $notification->order_id . $notification->status_code . $notification->gross_amount . 'SB-Mid-server-seH-VxCp9LSt3xheBxZ2M3an
-		');
+		$validSignatureKey = hash("sha512", $notification->order_id . $notification->status_code . $notification->gross_amount . 'SB-Mid-server-seH-VxCp9LSt3xheBxZ2M3an');
 		if ($notification->signature_key != $validSignatureKey) {
 			return response(['message' => 'Invalid signature'], 403);
 		}
