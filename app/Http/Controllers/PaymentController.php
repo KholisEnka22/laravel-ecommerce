@@ -125,7 +125,7 @@ class PaymentController extends Controller
 		}else{
 			return redirect('payments/failed?order_id='. $orderCode);
 		}
-		return redirect('frontend.payments.success');
+		return view('frontend.payments.success');
     }
 
     public function failed(Request $request){
