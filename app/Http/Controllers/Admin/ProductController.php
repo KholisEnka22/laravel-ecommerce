@@ -109,31 +109,41 @@ class ProductController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(ProductRequest $request,Product $product)
-    {
-        abort_if(Gate::denies('product_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+    public function update(ProductRequest $request, Product $product)
+{
+    abort_if(Gate::denies('product_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        if ($request->validated()) {
-            $product->update($request->except('tags', 'images', '_token'));
-            $product->tags()->sync($request->tags);
-
-            $i = $product->media()->count() + 1;
-
-            if ($request->images && count($request->images) > 0) {
-                (new ImageService())->storeProductImages($request->images, $product, $i);
+    if ($request->validated()) {
+        $data = $request->except('tags', 'images', '_token');
+        
+        // Mematikan teks <p> sebelum diperbarui
+        foreach ($data as &$value) {
+            if (is_string($value)) {
+                $value = strip_tags($value);
             }
-
-            return redirect()->route('admin.products.index')->with([
-                'message' => 'success created !',
-                'alert-type' => 'success'
-            ]);
         }
 
-        return back()->with([
-            'message' => 'Something was wrong, please try again late',
-            'alert-type' => 'danger'
-        ]);  
+        $product->update($data);
+        $product->tags()->sync($request->tags);
+
+        $i = $product->media()->count() + 1;
+
+        if ($request->images && count($request->images) > 0) {
+            (new ImageService())->storeProductImages($request->images, $product, $i);
+        }
+
+        return redirect()->route('admin.products.index')->with([
+            'message' => 'success updated!',
+            'alert-type' => 'success'
+        ]);
     }
+
+    return back()->with([
+        'message' => 'Something was wrong, please try again later',
+        'alert-type' => 'danger'
+    ]);
+}
+
 
     /**
      * Remove the specified resource from storage.

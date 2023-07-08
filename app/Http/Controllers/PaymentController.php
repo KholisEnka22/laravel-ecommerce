@@ -115,13 +115,16 @@ class PaymentController extends Controller
     }
 
     public function completed(Request $request){
-        $code = $request->query('order_id');
-		$order = Order::where('code', $code)->firstOrFail();
+		// print_r($request['transaction_status']);
+		$orderCode = $request['order_id'];
+		if ($request['transaction_status'] == 'settlement') {
+			Order::where('code', $orderCode)
+     ->update(['payment_status' => 'paid']);
 
-		if ($order->payment_status == Order::UNPAID) {
-			return redirect('payments/failed?order_id='. $code);
+
+		}else{
+			return redirect('payments/failed?order_id='. $orderCode);
 		}
-
 		return redirect('frontend.payments.success');
     }
 

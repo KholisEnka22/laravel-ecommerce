@@ -15,7 +15,6 @@ class OrderController extends BaseController
     public function checkout(Request $request){
         $params = $request->user()->toArray();
         $params = array_merge($params, $request->all());
-
         $sessionKey = $request->user()->id;
 
         $orders = \DB::transaction(
@@ -48,7 +47,7 @@ class OrderController extends BaseController
                 $results = [];
                 foreach ($this->couriers as $code => $courier) {
                     $param['courier'] = $code;
-                    
+                    print_r($code);
                     $response = $this->rajaOngkirRequest('cost', $param, 'POST');
                     
                     if (!empty($response['rajaongkir']['results'])) {
@@ -325,7 +324,7 @@ class OrderController extends BaseController
                 ];
 
                 Shipment::create($shipmentParams);
-    
+
                 return $order;
             }
         );
