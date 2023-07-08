@@ -10,7 +10,7 @@ use App\Http\Controllers\API\BaseController;
 
 class ProductController extends BaseController
 {
-    private $paginate = 2;
+    private $paginate = 1000;
 
     public function index(Request $request)
     {
