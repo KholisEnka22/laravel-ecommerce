@@ -28,7 +28,7 @@ class CheckoutController extends BaseController
     
             // dd($totalWeight);
             $selectedShipping = $this->getSelectedShipping($destination, $totalWeight, $params['shipping_courier']);
-// dd($selectedShipping);
+            // dd($selectedShipping);
             $baseTotalPrice = \Cart::getSubTotal();
             $shippingCost = $selectedShipping['cost'];
             $discountAmount = 0;
@@ -54,13 +54,13 @@ class CheckoutController extends BaseController
             // auth()->user()->update($user_profile);
             $user = User::where('email', $params['email'])->first();
 
-if ($user) {
-    // Email sudah ada dalam tabel users, lakukan tindakan yang sesuai
-    // Misalnya, beri tahu pengguna bahwa email tersebut sudah digunakan
-} else {
-    // Email belum ada dalam tabel users, lakukan pembaruan
-    auth()->user()->update($user_profile);
-}
+            if ($user) {
+                // Email sudah ada dalam tabel users, lakukan tindakan yang sesuai
+                // Misalnya, beri tahu pengguna bahwa email tersebut sudah digunakan
+            } else {
+                // Email belum ada dalam tabel users, lakukan pembaruan
+                auth()->user()->update($user_profile);
+            }
 
             $orderParams = [
                 'user_id' => auth()->id(),

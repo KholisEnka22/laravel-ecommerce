@@ -227,66 +227,66 @@ class CartController extends BaseController
             \Cart::isEmpty();
         }
 
-    try {
+        try {
 
-        $totalWeight = 0;
-        if ($sessionKey) {
-            $items = \Cart::session($sessionKey)->getContent();
-        } else {
-            $items = \Cart::getContent();
-        }
+            $totalWeight = 0;
+            if ($sessionKey) {
+                $items = \Cart::session($sessionKey)->getContent();
+            } else {
+                $items = \Cart::getContent();
+            }
 
-        foreach ($items as $item) {
-            $totalWeight += ($item->quantity * $item->associatedModel->weight);
-        }
+            foreach ($items as $item) {
+                $totalWeight += ($item->quantity * $item->associatedModel->weight);
+            }
 
-        $params = [
-            'origin' => env('RAJAONGKIR_ORIGIN'),
-            'destination' => $parameter['city_id'],
-            'weight' => $totalWeight,
-        ];
+            $params = [
+                'origin' => env('RAJAONGKIR_ORIGIN'),
+                'destination' => $parameter['city_id'],
+                'weight' => $totalWeight,
+            ];
 
-        $results = [];
-        foreach ($this->couriers as $code => $courier) {
-            $params['courier'] = $code;
-            
-            $response = $this->rajaOngkirRequest('cost', $params, 'POST');
-            
-            if (!empty($response['rajaongkir']['results'])) {
-                foreach ($response['rajaongkir']['results'] as $cost) {
-                    if (!empty($cost['costs'])) {
-                        foreach ($cost['costs'] as $costDetail) {
-                            $serviceName = strtoupper($cost['code']) .' - '. $costDetail['service'];
-                            $costAmount = $costDetail['cost'][0]['value'];
-                            $etd = $costDetail['cost'][0]['etd'];
+            $results = [];
+            foreach ($this->couriers as $code => $courier) {
+                $params['courier'] = $code;
+                
+                $response = $this->rajaOngkirRequest('cost', $params, 'POST');
+                
+                if (!empty($response['rajaongkir']['results'])) {
+                    foreach ($response['rajaongkir']['results'] as $cost) {
+                        if (!empty($cost['costs'])) {
+                            foreach ($cost['costs'] as $costDetail) {
+                                $serviceName = strtoupper($cost['code']) .' - '. $costDetail['service'];
+                                $costAmount = $costDetail['cost'][0]['value'];
+                                $etd = $costDetail['cost'][0]['etd'];
 
-                            $result = [
-                                'service' => $serviceName,
-                                'cost' => $costAmount,
-                                'etd' => $etd,
-                                'courier' => $code,
-                            ];
+                                $result = [
+                                    'service' => $serviceName,
+                                    'cost' => $costAmount,
+                                    'etd' => $etd,
+                                    'courier' => $code,
+                                ];
 
-                            $results[] = $result;
+                                $results[] = $result;
+                            }
                         }
                     }
                 }
             }
+
+            $response = [
+                'origin' => $params['origin'],
+                'destination' => $params ['destination'],
+                'weight' => $totalWeight,
+                'results' => $results,
+            ];
+        
+            return $this->responseOk($response, 200,'success !');
+
+        } catch (\GuzzleHttp\Exception\RequestException $err) {
+            return $this->responseError($err->getMessage(), 400);
         }
-
-        $response = [
-            'origin' => $params['origin'],
-            'destination' => $params ['destination'],
-            'weight' => $totalWeight,
-            'results' => $results,
-        ];
-      
-        return $this->responseOk($response, 200,'success !');
-
-    } catch (\GuzzleHttp\Exception\RequestException $err) {
-        return $this->responseError($err->getMessage(), 400);
-    }
-    return $this->responseError('get shipping options failed !', 400);
+        return $this->responseError('get shipping options failed !', 400);
 
     }
 

@@ -20,11 +20,6 @@ class ProductController extends BaseController
 
         $products = Product::paginate($this->paginate);
 
-        if ($q = $request->query('q')) {
-            $products = Product::where('name','LIKE', '%'. $request->query('q'). '%')
-                ->orWhere('description', 'LIKE', '%' . $request->query('q') . '%')    
-                ->paginate($this->paginate);            
-		}
 
         $meta = [
             'paginate' => $this->paginate,
@@ -36,7 +31,7 @@ class ProductController extends BaseController
     }
 
     public function show(Request $request){
-        $product = Product::with('media', 'category', 'tags')
+        $product = Product::with('media', 'category', 'tags','weight')
             ->where('slug', $request->slug)
             ->withCount('media','approvedReviews')
             ->withAvg('approvedReviews', 'rating')

@@ -32,7 +32,8 @@ Route::middleware('auth:api', 'sessions')->group(function () {
 
     Route::get('cart/shipping-options', [\App\Http\Controllers\API\CartController::class, 'shippingOptions']);
     Route::post('cart/set-shipping', [\App\Http\Controllers\API\CartController::class, 'setShipping']);
-
+    Route::post('kurir',[\App\Http\Controllers\API\shippingCostController::class,'shippingCost']);
+    
     Route::post('order/checkout', [\App\Http\Controllers\API\CheckoutController::class, 'checkout']);
 
 });
@@ -40,4 +41,6 @@ Route::middleware('auth:api', 'sessions')->group(function () {
 Route::middleware('client')->group(function () {
     Route::get('product', [\App\Http\Controllers\API\ProductController::class, 'index']);
     Route::get('product/{slug}', [\App\Http\Controllers\API\ProductController::class, 'show']);
+    
+
 });
