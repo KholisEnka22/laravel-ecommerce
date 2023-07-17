@@ -9,15 +9,17 @@ use App\Models\Shipment;
 use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use App\Http\Controllers\API\BaseController;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends BaseController
 {
     public function checkout(Request $request){
         $params = $request->user()->toArray();
         $params = array_merge($params, $request->all());
+
         $sessionKey = $request->user()->id;
 
-        $orders = \DB::transaction(
+        $orders = DB::transaction(
             function () use ($params, $sessionKey) {
                 $destination = isset($params['ship_to']) ? $params['shipping_city_id'] : $params['city_id'];
             
@@ -43,11 +45,11 @@ class OrderController extends BaseController
                     'destination' => $destination,
                     'weight' => $totalWeight,
                 ];
-        
                 $results = [];
                 foreach ($this->couriers as $code => $courier) {
                     $param['courier'] = $code;
-                    print_r($code);
+                    
+                    dd($param);
                     $response = $this->rajaOngkirRequest('cost', $param, 'POST');
                     
                     if (!empty($response['rajaongkir']['results'])) {
@@ -324,7 +326,7 @@ class OrderController extends BaseController
                 ];
 
                 Shipment::create($shipmentParams);
-
+    
                 return $order;
             }
         );

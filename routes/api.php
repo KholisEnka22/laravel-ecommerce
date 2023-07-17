@@ -34,8 +34,8 @@ Route::middleware('auth:api', 'sessions')->group(function () {
     Route::post('cart/set-shipping', [\App\Http\Controllers\API\CartController::class, 'setShipping']);
     Route::post('kurir',[\App\Http\Controllers\API\shippingCostController::class,'shippingCost']);
     
-    Route::post('order/checkout', [\App\Http\Controllers\API\CheckoutController::class, 'checkout']);
-
+    // Route::post('order/checkout', [\App\Http\Controllers\API\CheckoutController::class, 'checkout']);
+    Route::post('order/checkout', [\App\Http\Controllers\API\OrderController::class, 'checkout']);
 });
 
 Route::middleware('client')->group(function () {

@@ -55,7 +55,7 @@ class Controller extends BaseController
 			'headers' => $headers,
 		];
 
-		$url =  $this->rajaOngkirBaseUrl .'/'. $resource;
+		$url =  $this->rajaOngkirBaseUrl .''. $resource;
 		if ($params && $method == 'POST') {
 			$requestParams['form_params'] = $params;
 		} else if ($params && $method == 'GET') {
