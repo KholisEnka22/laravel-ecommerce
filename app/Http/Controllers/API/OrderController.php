@@ -5,7 +5,9 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\API\BaseController;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Payment;
 use App\Models\Product;
+use App\Models\Shipment;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -20,7 +22,7 @@ class OrderController extends BaseController
 
         $products = [];
         foreach ($items as $item) {
-            $product = Product::where('slug',$item['slug'])->first();
+            $product = Product::where('slug', $item['slug'])->first();
 
             $total_item = $product->price * $item['quantity'];
             $products[] = [
@@ -37,7 +39,7 @@ class OrderController extends BaseController
                 'order_id' => null,
                 'product_id' => $product->id,
             ];
-            $totalPrice =+ $total_item;
+            $totalPrice += $total_item;
         }
 
         $dataCreated = [
@@ -78,23 +80,80 @@ class OrderController extends BaseController
 
             DB::commit();
 
-            $order->order_items = $products;
+            $this->initPaymentGateway();
+
+            $customerDetails = [
+                'first_name' => $order->customer_first_name,
+                'last_name' => $order->customer_last_name,
+                'email' => $order->customer_email,
+                'phone' => $order->customer_phone,
+            ];
+
+            $data_payment = [
+                'enable_payments' => Payment::PAYMENT_CHANNELS,
+                'transaction_details' => [
+                    'order_id' => $order->code,
+                    'gross_amount' => (int) $order->grand_total,
+                ],
+                'customer_details' => $customerDetails,
+                'expiry' => [
+                    'start_time' => date('Y-m-d H:i:s T'),
+                    'unit' => \App\Models\Payment::EXPIRY_UNIT,
+                    'duration' => \App\Models\Payment::EXPIRY_DURATION,
+                ],
+            ];
+
+            $snap = \Midtrans\Snap::createTransaction($data_payment);
+
+            if ($snap->token) {
+                $order->payment_token = $snap->token;
+                $order->payment_url = $snap->redirect_url;
+                $order->save();
+            }
+
+            $shipmentParams = [
+                'user_id' => auth()->user()->id,
+                'order_id' => $order->id,
+                'status' => Shipment::PENDING,
+                'total_qty' => 0,
+                'total_weight' => 0,
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'address1' => $user->address1,
+                'address2' => $user->address2,
+                'phone' => $user->phone,
+                'email' => $user->email,
+                'city_id' => $user->city_id,
+                'province_id' => $user->province_id,
+                'postcode' => $user->postcode,
+            ];
+
+            foreach ($products as $product) {
+                $shipmentParams['total_qty'] += $product['qty'];
+                $shipmentParams['total_weight'] += $product['weight'] * $product['qty'];
+            }
+
+            Shipment::create($shipmentParams);
+
             $response = [
                 'status' => 200,
                 'message' => "success",
                 'data' => $order
             ];
-            
+
             return $response;
         } catch (\Throwable $th) {
+            DB::rollBack();
+
             $response = [
                 'status' => 400,
                 'message' => "error",
                 'errors' => $th->getMessage()
             ];
-            
+
             return $response;
         }
+       
     }
     public function getTransaksi()
     {
