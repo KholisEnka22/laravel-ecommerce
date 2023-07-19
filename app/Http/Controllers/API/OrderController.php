@@ -27,7 +27,7 @@ class OrderController extends BaseController
             $total_item = $product->price * $item['quantity'];
             $products[] = [
                 'qty' => $item['quantity'],
-                'base_price' =>  $product->price,
+                'base_price' => $product->price,
                 'base_total' => $total_item,
                 'tax_amount' => 0,
                 'tax_percent' => 0,
@@ -138,7 +138,7 @@ class OrderController extends BaseController
             $response = [
                 'status' => 200,
                 'message' => "success",
-                'data' => $order
+                'data' => $order,
             ];
 
             return $response;
@@ -148,23 +148,23 @@ class OrderController extends BaseController
             $response = [
                 'status' => 400,
                 'message' => "error",
-                'errors' => $th->getMessage()
+                'errors' => $th->getMessage(),
             ];
 
             return $response;
         }
-       
+        
     }
     public function getTransaksi()
     {
         $orders = Order::where('user_id', auth()->id())
             ->paginate(5);
 
-            $response = [
-                'status' => 200,
-                'message' => "sukses",
-                'data' => $orders
-            ];
+        $response = [
+            'status' => 200,
+            'message' => "sukses",
+            'data' => $orders,
+        ];
         return $response;
     }
 }

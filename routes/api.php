@@ -22,6 +22,7 @@ Route::post('login', [\App\Http\Controllers\API\UserController::class, 'login'])
 
 Route::middleware('auth:api')->group(function () {
     Route::get('profile', [\App\Http\Controllers\API\UserController::class, 'getProfile']);
+    Route::post('update/profile', [\App\Http\Controllers\API\UserController::class, 'updateProfile']);
     Route::get('logout', [\App\Http\Controllers\API\UserController::class, 'logout']);
 
     Route::get('cart', [\App\Http\Controllers\API\CartController::class, 'index']);
